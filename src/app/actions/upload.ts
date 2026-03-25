@@ -43,7 +43,7 @@ export async function uploadResume(formData: FormData) {
   const dbUser = await prisma.user.upsert({
     where: { clerkId: userId },
     update: { email: user.emailAddresses[0].emailAddress },
-    create: { 
+    create: {
       clerkId: userId,
       email: user.emailAddresses[0].emailAddress,
     },
@@ -53,7 +53,7 @@ export async function uploadResume(formData: FormData) {
   let fileUrl = "";
   const uploadDir = join(process.cwd(), "public", "uploads");
   const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-  
+
   try {
     // Attempt to save file (works locally, fails on Vercel)
     await mkdir(uploadDir, { recursive: true });
@@ -63,7 +63,7 @@ export async function uploadResume(formData: FormData) {
   } catch (err) {
     console.warn("Skipping local file save (Production/Vercel):", err);
     // Placeholder URL since physical file isn't needed for analysis
-    fileUrl = `data:${file.type};base64,${buffer.toString("base64").substring(0, 100)}...`; 
+    fileUrl = `data:${file.type};base64,${buffer.toString("base64").substring(0, 100)}...`;
   }
 
   // Save to database
@@ -79,3 +79,4 @@ export async function uploadResume(formData: FormData) {
   revalidatePath("/dashboard");
   redirect("/job");
 }
+
