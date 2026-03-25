@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import DashboardShell from "@/components/DashboardShell";
 import { Sparkles, CheckCircle2, FileDown, ArrowLeft, MoreHorizontal, Loader2, AlertCircle, TrendingUp, Target, ListChecks, Copy, Save, Check, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { updateAnalysis, deleteAnalysis } from "@/app/actions/analysis";
-import { useRouter } from "next/navigation";
-
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AddJobModal from "@/components/AddJobModal";
 
 interface AnalysisResult {
@@ -22,6 +20,20 @@ interface AnalysisResult {
 }
 
 export default function ResultsPage() {
+  return (
+    <Suspense fallback={
+      <DashboardShell>
+        <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-6 text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-slate-200" />
+        </div>
+      </DashboardShell>
+    }>
+      <ResultsContent />
+    </Suspense>
+  );
+}
+
+function ResultsContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const router = useRouter();
@@ -362,6 +374,7 @@ export default function ResultsPage() {
           company: data?.company || "",
           matchScore: data?.matchScore || 0,
           resumeId: data?.resumeId,
+          analysisId: data?.id,
         }}
       />
     )}

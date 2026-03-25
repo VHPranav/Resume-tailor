@@ -40,6 +40,7 @@ export async function createJobApplication(data: {
   status: string;
   appliedDate?: Date;
   resumeId?: string;
+  analysisId?: string;
   matchScore?: number;
 }) {
   const { userId: clerkId } = await auth();
@@ -67,6 +68,7 @@ export async function createJobApplication(data: {
       status: data.status,
       appliedDate: data.appliedDate,
       resumeId: data.resumeId,
+      analysisId: data.analysisId,
       matchScore: data.matchScore,
     },
   });
@@ -144,6 +146,31 @@ export async function addInterview(jobApplicationId: string, data: {
   });
 
   revalidatePath(`/jobs/${jobApplicationId}`);
+}
+
+export async function deleteJobApplication(id: string) {
+  const { userId: clerkId } = await auth();
+
+  if (!clerkId) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { clerkId },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  await prisma.jobApplication.delete({
+    where: { 
+      id,
+      userId: user.id 
+    },
+  });
+
+  revalidatePath("/jobs");
 }
 
 export async function updateJobNotes(id: string, notes: string) {

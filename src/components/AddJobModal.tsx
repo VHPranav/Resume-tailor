@@ -13,6 +13,7 @@ interface AddJobModalProps {
     company?: string;
     matchScore?: number;
     resumeId?: string;
+    analysisId?: string;
   };
 }
 
@@ -28,6 +29,7 @@ export default function AddJobModal({ resumes, onClose, onSuccess, initialData }
     appliedDate: new Date().toISOString().split("T")[0],
     resumeId: initialData?.resumeId || resumes[0]?.id || "",
     matchScore: initialData?.matchScore || 0,
+    analysisId: initialData?.analysisId || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

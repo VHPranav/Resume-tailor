@@ -15,19 +15,24 @@ import {
   CheckCircle2,
   Trash2,
   Loader2,
-  Save
+  Save,
+  ChevronDown
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useParams } from "next/navigation";
-import { getJobApplications, addInterview, updateJobNotes } from "@/app/actions/tracker";
+import { useParams, useRouter } from "next/navigation";
+import { getJobApplications, addInterview, updateJobNotes, updateJobApplicationStatus, deleteJobApplication } from "@/app/actions/tracker";
 
 export default function JobDetailPage() {
   const { id } = useParams() as { id: string };
+  const router = useRouter();
   const [app, setApp] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [isAddingInterview, setIsAddingInterview] = useState(false);
   
   // New interview form state
@@ -37,6 +42,30 @@ export default function JobDetailPage() {
     interviewer: "",
     notes: "",
   });
+
+  const handleDeleteJob = async () => {
+    setDeleting(true);
+    try {
+      await deleteJobApplication(id);
+      router.push("/jobs");
+    } catch (error) {
+      console.error("Failed to delete job:", error);
+      setDeleting(false);
+      setShowConfirmDelete(false);
+    }
+  };
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    setUpdatingStatus(true);
+    try {
+      await updateJobApplicationStatus(id, newStatus);
+      fetchJob();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
 
   const fetchJob = async () => {
     setLoading(true);
@@ -113,15 +142,28 @@ export default function JobDetailPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                  <h1 className="text-4xl font-black tracking-tight text-slate-900">{app.title}</h1>
-                 <span className={cn(
-                   "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
-                   app.status === 'OFFER' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                   app.status === 'REJECTED' ? 'bg-red-50 text-red-600 border-red-100' :
-                   app.status === 'INTERVIEW' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                   'bg-slate-50 text-slate-600 border-slate-100'
-                 )}>
-                   {app.status}
-                 </span>
+                 <div className="relative group">
+                    <select 
+                      disabled={updatingStatus}
+                      value={app.status}
+                      onChange={(e) => handleStatusUpdate(e.target.value)}
+                      className={cn(
+                        "appearance-none px-4 py-1.5 pr-10 rounded-full text-[10px] font-black uppercase tracking-widest border cursor-pointer transition-all outline-none bg-no-repeat bg-[right_1rem_center]",
+                        app.status === 'OFFER' ? 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100' :
+                        app.status === 'REJECTED' ? 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100' :
+                        app.status === 'INTERVIEW' ? 'bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-100' :
+                        'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                      )}
+                    >
+                      <option value="SAVED">Saved</option>
+                      <option value="APPLIED">Applied</option>
+                      <option value="INTERVIEW">Interview</option>
+                      <option value="OFFER">Offer</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
+                    <ChevronDown className="w-3 h-3 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-current opacity-50" />
+                    {updatingStatus && <Loader2 className="w-3 h-3 animate-spin absolute -right-6 top-1/2 -translate-y-1/2 text-slate-400" />}
+                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-4 text-slate-500 font-bold">
                 <div className="flex items-center gap-1.5"><Building2 className="w-4 h-4 text-slate-400" /> {app.company}</div>
@@ -129,11 +171,44 @@ export default function JobDetailPage() {
                 {app.salary && <div className="flex items-center gap-1.5"><DollarSign className="w-4 h-4 text-slate-400" /> {app.salary}</div>}
               </div>
             </div>
-            {app.url && (
-              <a href={app.url} target="_blank" rel="noreferrer" className="kuubiik-button-secondary inline-flex items-center gap-2">
-                View Posting <Clock className="w-4 h-4" />
-              </a>
-            )}
+            <div className="flex items-center gap-3">
+              {app.url && (
+                <a href={app.url} target="_blank" rel="noreferrer" className="kuubiik-button-secondary inline-flex items-center gap-2">
+                  View Posting <Clock className="w-4 h-4" />
+                </a>
+              )}
+              
+              <div className="relative">
+                <button 
+                  onClick={() => setShowConfirmDelete(!showConfirmDelete)}
+                  disabled={deleting}
+                  className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+                  title="Delete application"
+                >
+                  {deleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                </button>
+
+                {showConfirmDelete && !deleting && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-50 space-y-3 animate-in fade-in slide-in-from-top-2">
+                    <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest text-center">Delete application?</p>
+                    <div className="flex gap-2">
+                       <button 
+                         onClick={() => setShowConfirmDelete(false)}
+                         className="flex-1 py-2 text-[10px] font-bold text-slate-500 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                        >
+                          Cancel
+                       </button>
+                       <button 
+                         onClick={handleDeleteJob}
+                         className="flex-1 py-2 text-[10px] font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+                        >
+                          Delete
+                       </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </header>
 
@@ -208,9 +283,13 @@ export default function JobDetailPage() {
                     <h3 className="text-xl font-black truncate">{app.resume?.fileName || "Unnamed Resume"}</h3>
                  </div>
                  <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
-                    <Link href={`/results?id=${app.id}`} className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition-colors">
-                       View tailoring results <CheckCircle2 className="w-4 h-4" />
-                    </Link>
+                    {app.analysisId ? (
+                      <Link href={`/results?id=${app.analysisId}`} className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition-colors">
+                        View tailoring results <CheckCircle2 className="w-4 h-4" />
+                      </Link>
+                    ) : (
+                      <span className="text-xs font-bold text-slate-500 italic">No analysis results linked</span>
+                    )}
                  </div>
               </section>
 
