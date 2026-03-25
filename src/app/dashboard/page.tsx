@@ -42,11 +42,11 @@ export default async function DashboardPage() {
       <div className="space-y-12">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Welcome Banner */}
-          <section className="flex-1 kuubiik-card p-10 bg-[#F8F9F5] border-none shadow-none relative overflow-hidden group">
+          <section className="flex-1 kuubiik-card p-6 md:p-10 bg-[#F8F9F5] border-none shadow-none relative overflow-hidden group">
             <Sparkles className="w-64 h-64 text-emerald-500/5 absolute -bottom-10 -right-10 group-hover:scale-110 transition-transform duration-1000" />
             <div className="relative z-10 space-y-8">
               <div className="space-y-3">
-                <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 capitalize">
+                <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 capitalize">
                   Welcome back, {userName}!
                 </h1>
                 <p className="text-slate-500 font-medium max-w-lg leading-relaxed text-lg">
@@ -87,7 +87,7 @@ export default async function DashboardPage() {
               <div className="inline-block px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-widest leading-none">
                 History
               </div>
-              <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
                 Recent Analyses
               </h2>
             </div>

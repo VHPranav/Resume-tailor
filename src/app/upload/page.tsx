@@ -79,22 +79,22 @@ export default function UploadPage() {
     <DashboardShell>
       <div className="max-w-2xl mx-auto space-y-10 py-10">
         <header className="text-center space-y-2">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
             Upload your resume
           </h1>
-          <p className="text-lg text-slate-500 font-medium">
+          <p className="text-base md:text-lg text-slate-500 font-medium px-4">
             Start by uploading your base resume in PDF or DOCX format.
           </p>
         </header>
 
-        <div className="space-y-6">
+        <div className="space-y-6 px-4 md:px-0">
           <div
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              "kuubiik-card p-12 border-2 border-dashed flex flex-col items-center justify-center text-center space-y-6 cursor-pointer transition-all duration-300 group",
+              "kuubiik-card p-8 md:p-12 border-2 border-dashed flex flex-col items-center justify-center text-center space-y-6 cursor-pointer transition-all duration-300 group",
               isDragging 
                 ? "border-emerald-500 bg-emerald-50/50 scale-[1.02]" 
                 : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"

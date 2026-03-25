@@ -170,71 +170,71 @@ function ResultsContent() {
              <Link href="/dashboard" className="text-xs font-bold text-slate-400 hover:text-slate-900 flex items-center gap-1 mb-2 transition-colors uppercase tracking-widest">
                 <ArrowLeft className="w-3 h-3" /> Back to Dashboard
              </Link>
-             <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
-               Analysis Results
-             </h1>
-          </div>
-          <div className="flex items-center gap-3">
-             <button 
-               onClick={() => setIsTrackerModalOpen(true)}
-               className="kuubiik-button-secondary flex items-center gap-2 border-emerald-100 hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700 transition-all font-bold"
-             >
-               <TrendingUp className="w-4 h-4" /> Save to Tracker
-             </button>
-             <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner text-sm font-medium">
-                <button 
-                  onClick={handleDownload}
-                  className="px-4 py-2 hover:bg-white hover:text-slate-900 text-slate-500 rounded-lg transition-all flex items-center gap-2"
-                 >
-                   .MD
-                </button>
-                <button 
-                  onClick={async () => {
-                    setCopying(true);
-                    try {
-                      const { generateDocx } = await import('@/lib/exportUtils');
-                      const blob = await generateDocx(editedResume);
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "Tailored-Resume.docx";
-                      a.click();
-                    } finally {
-                      setCopying(false);
-                    }
-                  }}
-                  className="px-4 py-2 hover:bg-white hover:text-blue-600 text-slate-500 rounded-lg shadow-sm bg-white transition-all flex items-center gap-2"
-                 >
-                   <FileDown className="w-4 h-4" /> DOCX
-                </button>
-                <button 
-                  onClick={async () => {
-                    setCopying(true);
-                    try {
-                      const { generatePdf } = await import('@/lib/exportUtils');
-                      const blob = generatePdf(editedResume);
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "Tailored-Resume.pdf";
-                      a.click();
-                    } finally {
-                      setCopying(false);
-                    }
-                  }}
-                  className="px-4 py-2 hover:bg-white hover:text-red-600 text-slate-500 rounded-lg transition-all flex items-center gap-2"
-                 >
-                   <FileDown className="w-4 h-4" /> PDF
-                </button>
-             </div>
-             <button 
-               onClick={handleSave}
-               disabled={saving}
-               className="kuubiik-button flex items-center gap-2 min-w-[120px] justify-center"
+              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+                Analysis Results
+              </h1>
+           </div>
+           <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <button 
+                onClick={() => setIsTrackerModalOpen(true)}
+                className="kuubiik-button-secondary flex-1 md:flex-none flex items-center justify-center gap-2 border-emerald-100 hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700 transition-all font-bold text-xs"
               >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {saving ? "Saving..." : "Save Edits"}
-             </button>
+                <TrendingUp className="w-4 h-4" /> Save to Tracker
+              </button>
+              <div className="flex flex-1 md:flex-none bg-slate-100 p-1 rounded-xl shadow-inner text-[10px] md:text-sm font-medium">
+                 <button 
+                   onClick={handleDownload}
+                   className="flex-1 px-3 md:px-4 py-2 hover:bg-white hover:text-slate-900 text-slate-500 rounded-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    .MD
+                 </button>
+                 <button 
+                   onClick={async () => {
+                     setCopying(true);
+                     try {
+                       const { generateDocx } = await import('@/lib/exportUtils');
+                       const blob = await generateDocx(editedResume);
+                       const url = URL.createObjectURL(blob);
+                       const a = document.createElement("a");
+                       a.href = url;
+                       a.download = "Tailored-Resume.docx";
+                       a.click();
+                     } finally {
+                       setCopying(false);
+                     }
+                   }}
+                   className="flex-1 px-3 md:px-4 py-2 hover:bg-white hover:text-blue-600 text-slate-500 rounded-lg shadow-sm bg-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <FileDown className="w-4 h-4" /> DOCX
+                 </button>
+                 <button 
+                   onClick={async () => {
+                     setCopying(true);
+                     try {
+                       const { generatePdf } = await import('@/lib/exportUtils');
+                       const blob = generatePdf(editedResume);
+                       const url = URL.createObjectURL(blob);
+                       const a = document.createElement("a");
+                       a.href = url;
+                       a.download = "Tailored-Resume.pdf";
+                       a.click();
+                     } finally {
+                       setCopying(false);
+                     }
+                   }}
+                   className="flex-1 px-3 md:px-4 py-2 hover:bg-white hover:text-red-600 text-slate-500 rounded-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    <FileDown className="w-4 h-4" /> PDF
+                 </button>
+              </div>
+              <button 
+                onClick={handleSave}
+                disabled={saving}
+                className="kuubiik-button flex-1 md:flex-none flex items-center gap-2 min-w-[120px] justify-center text-xs"
+               >
+                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                 {saving ? "Saving..." : "Save Edits"}
+              </button>
 
              <div className="relative">
                 <button 
@@ -291,7 +291,7 @@ function ResultsContent() {
                  <textarea
                    value={editedResume}
                    onChange={(e) => setEditedResume(e.target.value)}
-                   className="flex-1 p-12 text-slate-700 bg-white focus:outline-none resize-none font-mono text-sm leading-relaxed"
+                   className="flex-1 p-6 md:p-12 text-slate-700 bg-white focus:outline-none resize-none font-mono text-[13px] leading-relaxed"
                    spellCheck="false"
                  />
               </section>
@@ -305,10 +305,10 @@ function ResultsContent() {
                  <div className="relative space-y-6">
                     <div className="space-y-2">
                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Match Score</p>
-                       <div className="flex items-end gap-4">
-                          <span className="text-7xl font-extrabold text-emerald-400 leading-none">{data?.matchScore}</span>
-                          <span className="text-slate-500 font-bold mb-2">/100</span>
-                       </div>
+                        <div className="flex items-end gap-4">
+                           <span className="text-5xl md:text-7xl font-extrabold text-emerald-400 leading-none">{data?.matchScore}</span>
+                           <span className="text-slate-500 font-bold mb-2">/100</span>
+                        </div>
                     </div>
                     <div className="pt-6 border-t border-slate-800 space-y-4">
                        <div className="flex items-center gap-2">

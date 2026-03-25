@@ -54,23 +54,23 @@ export default function AddJobModal({ resumes, onClose, onSuccess, initialData }
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity" 
         onClick={onClose} 
       />
-      <div className="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between p-8 border-b border-slate-50 bg-slate-50/50">
+      <div className="relative w-full max-w-xl bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[95vh] md:max-h-[90vh]">
+        <div className="flex items-center justify-between p-6 md:p-8 border-b border-slate-50 bg-slate-50/50">
           <div className="space-y-1">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-brand-primary" /> Add New Application
             </h2>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Tracker</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Job Tracker</p>
           </div>
           <button 
             onClick={onClose}
-            className="p-3 text-slate-400 hover:text-slate-900 hover:bg-white rounded-2xl transition-all shadow-sm group"
+            className="p-2 md:p-3 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl md:rounded-2xl transition-all shadow-sm group"
           >
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-8">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
              <div className="space-y-2">
                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-4">Job Title</label>

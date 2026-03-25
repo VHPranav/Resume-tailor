@@ -6,7 +6,8 @@ import {
   Briefcase, 
   Settings, 
   LayoutGrid,
-  Sparkles
+  Sparkles,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,19 +21,39 @@ const system = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ 
+  isOpen, 
+  onClose 
+}: { 
+  isOpen?: boolean; 
+  onClose?: () => void 
+}) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r border-slate-200/60 h-screen sticky top-0 bg-white flex flex-col px-4 py-8 overflow-y-auto">
-      <div className="flex items-center gap-2 mb-10 px-2">
-        <div className="flex gap-0.5">
-          <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-          <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
+    <aside className={cn(
+      "w-64 border-r border-slate-200/60 h-screen sticky top-0 bg-white flex flex-col px-4 py-8 overflow-y-auto transition-all duration-300 z-50",
+      "fixed lg:sticky lg:translate-x-0",
+      isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
+    )}>
+      <div className="flex items-center justify-between mb-10 px-2">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-0.5">
+            <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+            <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
+          </div>
+          <span className="text-xl font-bold tracking-tight text-slate-900">
+            kuubiik
+          </span>
         </div>
-        <span className="text-xl font-bold tracking-tight text-slate-900">
-          kuubiik
-        </span>
+        <button 
+          onClick={onClose}
+          className="p-2 lg:hidden text-slate-400 hover:text-slate-900 transition-colors"
+        >
+          <Sparkles className="w-5 h-5" /> {/* Close icon could be X, but using Sparkles for style if preferred or just Lucide X */}
+           {/* Let's use X for clarity */}
+           <X className="w-5 h-5" />
+        </button>
       </div>
 
       <nav className="space-y-8">

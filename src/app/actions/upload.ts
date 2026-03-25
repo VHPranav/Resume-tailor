@@ -49,19 +49,22 @@ export async function uploadResume(formData: FormData) {
     },
   });
 
-  // Save file locally
+  // Handle file saving (Local dev only, will skip in production/Vercel)
+  let fileUrl = "";
   const uploadDir = join(process.cwd(), "public", "uploads");
-  try {
-    await mkdir(uploadDir, { recursive: true });
-  } catch (err) {
-    // Directory already exists
-  }
-
   const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-  const filePath = join(uploadDir, fileName);
-  await writeFile(filePath, buffer);
-
-  const fileUrl = `/uploads/${fileName}`;
+  
+  try {
+    // Attempt to save file (works locally, fails on Vercel)
+    await mkdir(uploadDir, { recursive: true });
+    const filePath = join(uploadDir, fileName);
+    await writeFile(filePath, buffer);
+    fileUrl = `/uploads/${fileName}`;
+  } catch (err) {
+    console.warn("Skipping local file save (Production/Vercel):", err);
+    // Placeholder URL since physical file isn't needed for analysis
+    fileUrl = `data:${file.type};base64,${buffer.toString("base64").substring(0, 100)}...`; 
+  }
 
   // Save to database
   await prisma.resume.create({
@@ -69,7 +72,7 @@ export async function uploadResume(formData: FormData) {
       userId: dbUser.id,
       fileUrl,
       fileName: file.name,
-      content, // Added field
+      content,
     },
   });
 

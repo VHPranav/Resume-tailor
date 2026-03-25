@@ -1,13 +1,18 @@
+"use client";
+
 import Link from "next/link";
-import { Sparkles, ArrowRight, Zap, Shield, Globe } from "lucide-react";
+import { Sparkles, ArrowRight, Zap, Shield, Globe, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export default function Home() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4">
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 md:px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="flex gap-0.5">
               <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
               <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
@@ -15,21 +20,41 @@ export default function Home() {
             <span className="text-xl font-bold tracking-tight text-slate-900">
               kuubiik
             </span>
-          </div>
+          </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500">
             <Link href="#features" className="hover:text-slate-900 transition-colors">Features</Link>
             <Link href="#how-it-works" className="hover:text-slate-900 transition-colors">How it works</Link>
             <Link href="/dashboard" className="hover:text-slate-900 transition-colors">Dashboard</Link>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/sign-in" className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
+          <div className="flex items-center gap-2 md:gap-4">
+            <Link href="/sign-in" className="hidden xs:block text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
               Log in
             </Link>
-            <Link href="/sign-up" className="kuubiik-button text-xs py-2">
+            <Link href="/sign-up" className="kuubiik-button text-[10px] md:text-xs py-2 px-3 md:px-5">
               Get Started
             </Link>
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 md:hidden text-slate-600 hover:bg-slate-50 rounded-lg"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-100 p-6 space-y-6 animate-in slide-in-from-top-5">
+            <div className="flex flex-col gap-4 text-sm font-bold text-slate-600">
+              <Link href="#features" onClick={() => setIsMenuOpen(false)} className="hover:text-slate-900">Features</Link>
+              <Link href="#how-it-works" onClick={() => setIsMenuOpen(false)} className="hover:text-slate-900">How it works</Link>
+              <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="hover:text-slate-900">Dashboard</Link>
+              <div className="pt-4 border-t border-slate-50">
+                <Link href="/sign-in" className="block py-2">Log in</Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       <main className="pt-32">
@@ -39,10 +64,10 @@ export default function Home() {
             <Sparkles className="w-3 h-3" />
             AI-Powered Resume Tailoring
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 max-w-4xl mx-auto leading-[1.1]">
+          <h1 className="text-3xl sm:text-4xl md:text-7xl font-extrabold tracking-tight text-slate-900 max-w-4xl mx-auto leading-[1.1]">
             Landing your dream job just got <span className="text-emerald-500 underline decoration-emerald-200 underline-offset-8">easier</span>.
           </h1>
-          <p className="text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
             Upload your resume, paste a job description, and let our AI rewrite it to perfectly match the role. Optimize for ATS and impress recruiters in seconds.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
