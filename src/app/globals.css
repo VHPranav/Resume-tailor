@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  
+  --color-brand-primary: #0F172A; /* Dark Slate/Teal */
+  --color-brand-accent: #FBBF24; /* Amber/Yellow from image */
+  --color-brand-bg: #FBFBFB;
+  
+  --radius-apple: 1.25rem;
+  --radius-kuubiik: 1rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    @apply bg-white text-slate-900 selection:bg-blue-100 font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-500 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all duration-200;
+  }
+  
+  .sidebar-link-active {
+    @apply bg-slate-50 text-slate-900;
+  }
+
+  .kuubiik-card {
+    @apply bg-white rounded-kuubiik border border-slate-200/50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300;
+  }
+
+  .kuubiik-button {
+    @apply px-5 py-2.5 bg-brand-primary text-white rounded-lg font-semibold hover:opacity-90 active:scale-[0.98] transition-all;
+  }
+
+  .kuubiik-button-secondary {
+    @apply px-5 py-2.5 bg-white text-slate-900 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all;
+  }
 }
