@@ -39,7 +39,7 @@ export default function JobPage() {
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="kuubiik-card p-8 space-y-8">
+          <div className="resumeii-card p-8 space-y-8">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="title" className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -91,7 +91,7 @@ export default function JobPage() {
              <button 
                type="submit"
                disabled={isSubmitting}
-               className="kuubiik-button w-full py-4 text-base flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10"
+               className="resumeii-button w-full py-4 text-base flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10"
              >
                {isSubmitting ? (
                  <>

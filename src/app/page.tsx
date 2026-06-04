@@ -18,7 +18,7 @@ export default function Home() {
               <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-900">
-              kuubiik
+              Resumeii
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500">
@@ -30,7 +30,7 @@ export default function Home() {
             <Link href="/sign-in" className="hidden xs:block text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
               Log in
             </Link>
-            <Link href="/sign-up" className="kuubiik-button text-[10px] md:text-xs py-2 px-3 md:px-5">
+            <Link href="/sign-up" className="resumeii-button text-[10px] md:text-xs py-2 px-3 md:px-5">
               Get Started
             </Link>
             <button 
@@ -71,10 +71,10 @@ export default function Home() {
             Upload your resume, paste a job description, and let our AI rewrite it to perfectly match the role. Optimize for ATS and impress recruiters in seconds.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link href="/sign-up" className="kuubiik-button text-base px-8 py-4 flex items-center gap-2">
+            <Link href="/sign-up" className="resumeii-button text-base px-8 py-4 flex items-center gap-2">
               Start Tailoring Now <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="#how-it-works" className="kuubiik-button-secondary text-base px-8 py-4">
+            <Link href="#how-it-works" className="resumeii-button-secondary text-base px-8 py-4">
               See How it Works
             </Link>
           </div>
@@ -114,7 +114,7 @@ export default function Home() {
                <Step number="02" title="Paste the job description" description="Give us the details of the job you're applying for." />
                <Step number="03" title="Generate and Download" description="Review the AI-optimized version and download it instantly." />
             </div>
-            <div className="kuubiik-card p-4 bg-slate-100/50 border-dashed border-2 relative min-h-[400px] flex items-center justify-center">
+            <div className="resumeii-card p-4 bg-slate-100/50 border-dashed border-2 relative min-h-[400px] flex items-center justify-center">
                <div className="bg-white p-8 rounded-2xl shadow-xl space-y-6 w-full max-w-sm">
                   <div className="h-4 w-1/3 bg-slate-100 rounded-full" />
                   <div className="space-y-3">
@@ -141,10 +141,10 @@ export default function Home() {
               <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-900">
-              kuubiik
+              Resumeii
             </span>
           </div>
-          <p className="text-sm text-slate-400 font-medium">© 2026 Kuubiik AI Resume Tailor. Built by Antigravity.</p>
+          <p className="text-sm text-slate-400 font-medium">© 2026 Resumeii AI Resume Tailor. Built by Antigravity.</p>
           <div className="flex gap-6 text-sm font-semibold text-slate-500">
             <Link href="#" className="hover:text-slate-900 transition-colors">Privacy</Link>
             <Link href="#" className="hover:text-slate-900 transition-colors">Terms</Link>
@@ -157,7 +157,7 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }: any) {
   return (
-    <div className="kuubiik-card p-8 space-y-4">
+    <div className="resumeii-card p-8 space-y-4">
       <div className="p-3 bg-white w-fit rounded-xl shadow-sm border border-slate-100">
         {icon}
       </div>

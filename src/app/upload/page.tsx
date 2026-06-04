@@ -94,7 +94,7 @@ export default function UploadPage() {
             onDrop={onDrop}
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              "kuubiik-card p-8 md:p-12 border-2 border-dashed flex flex-col items-center justify-center text-center space-y-6 cursor-pointer transition-all duration-300 group",
+              "resumeii-card p-8 md:p-12 border-2 border-dashed flex flex-col items-center justify-center text-center space-y-6 cursor-pointer transition-all duration-300 group",
               isDragging 
                 ? "border-emerald-500 bg-emerald-50/50 scale-[1.02]" 
                 : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
@@ -141,7 +141,7 @@ export default function UploadPage() {
                <button
                   disabled={isUploading}
                   onClick={handleUpload}
-                  className="kuubiik-button w-full py-4 text-base flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10"
+                  className="resumeii-button w-full py-4 text-base flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10"
                 >
                   {isUploading ? (
                     <>

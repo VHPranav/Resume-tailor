@@ -153,7 +153,7 @@ function ResultsContent() {
                <h2 className="text-2xl font-extrabold text-slate-900">Analysis Failed</h2>
                <p className="text-slate-500 font-medium">{error}</p>
             </div>
-            <Link href="/upload" className="kuubiik-button-secondary inline-flex">
+            <Link href="/upload" className="resumeii-button-secondary inline-flex">
                Try again
             </Link>
          </div>
@@ -177,7 +177,7 @@ function ResultsContent() {
            <div className="flex flex-wrap items-center gap-2 md:gap-3">
               <button 
                 onClick={() => setIsTrackerModalOpen(true)}
-                className="kuubiik-button-secondary flex-1 md:flex-none flex items-center justify-center gap-2 border-emerald-100 hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700 transition-all font-bold text-xs"
+                className="resumeii-button-secondary flex-1 md:flex-none flex items-center justify-center gap-2 border-emerald-100 hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700 transition-all font-bold text-xs"
               >
                 <TrendingUp className="w-4 h-4" /> Save to Tracker
               </button>
@@ -230,7 +230,7 @@ function ResultsContent() {
               <button 
                 onClick={handleSave}
                 disabled={saving}
-                className="kuubiik-button flex-1 md:flex-none flex items-center gap-2 min-w-[120px] justify-center text-xs"
+                className="resumeii-button flex-1 md:flex-none flex items-center gap-2 min-w-[120px] justify-center text-xs"
                >
                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                  {saving ? "Saving..." : "Save Edits"}
@@ -272,7 +272,7 @@ function ResultsContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
            {/* Main Content: Editable Resume */}
            <div className="lg:col-span-2 space-y-8">
-              <section className="kuubiik-card p-0 overflow-hidden shadow-2xl shadow-slate-200/50 flex flex-col min-h-[700px]">
+              <section className="resumeii-card p-0 overflow-hidden shadow-2xl shadow-slate-200/50 flex flex-col min-h-[700px]">
                  <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">AI Rewritten Resume</span>
@@ -300,7 +300,7 @@ function ResultsContent() {
            {/* Sidebar Info */}
            <div className="space-y-8">
               {/* Match Score Card */}
-              <section className="kuubiik-card p-8 bg-slate-900 text-white border-none shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
+              <section className="resumeii-card p-8 bg-slate-900 text-white border-none shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
                  <Target className="w-32 h-32 text-white/5 absolute -bottom-6 -right-6 group-hover:scale-110 transition-transform duration-700" />
                  <div className="relative space-y-6">
                     <div className="space-y-2">
@@ -325,7 +325,7 @@ function ResultsContent() {
               </section>
 
               {/* Missing Skills */}
-              <section className="kuubiik-card p-6 space-y-6">
+              <section className="resumeii-card p-6 space-y-6">
                  <div className="flex items-center gap-2">
                     <ListChecks className="w-5 h-5 text-amber-500" />
                     <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Missing Skills</h3>
@@ -343,7 +343,7 @@ function ResultsContent() {
               </section>
 
               {/* AI Suggestions */}
-              <section className="kuubiik-card p-6 space-y-6">
+              <section className="resumeii-card p-6 space-y-6">
                  <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Key Improvements</h3>

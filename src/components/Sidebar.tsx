@@ -43,7 +43,7 @@ export default function Sidebar({
             <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
           </div>
           <span className="text-xl font-bold tracking-tight text-slate-900">
-            kuubiik
+            Resumeii
           </span>
         </div>
         <button 

@@ -8,7 +8,7 @@
   --color-brand-bg: #FBFBFB;
   
   --radius-apple: 1.25rem;
-  --radius-kuubiik: 1rem;
+  --radius-resumeii: 1rem;
 }
 
 @layer base {
@@ -26,15 +26,15 @@
     @apply bg-slate-50 text-slate-900;
   }
 
-  .kuubiik-card {
-    @apply bg-white rounded-kuubiik border border-slate-200/50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300;
+  .resumeii-card {
+    @apply bg-white rounded-resumeii border border-slate-200/50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300;
   }
 
-  .kuubiik-button {
+  .resumeii-button {
     @apply px-5 py-2.5 bg-brand-primary text-white rounded-lg font-semibold hover:opacity-90 active:scale-[0.98] transition-all;
   }
 
-  .kuubiik-button-secondary {
+  .resumeii-button-secondary {
     @apply px-5 py-2.5 bg-white text-slate-900 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all;
   }
 }

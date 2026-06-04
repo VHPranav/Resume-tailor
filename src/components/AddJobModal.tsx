@@ -173,7 +173,7 @@ export default function AddJobModal({ resumes, onClose, onSuccess, initialData }
           <button 
             disabled={loading}
             onClick={handleSubmit}
-            className="kuubiik-button w-full h-auto py-5 text-sm flex items-center justify-center gap-3 transition-all"
+            className="resumeii-button w-full h-auto py-5 text-sm flex items-center justify-center gap-3 transition-all"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
             {loading ? "Adding application..." : "Add to Dashboard"}

@@ -83,7 +83,7 @@ export default function JobsPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="kuubiik-button flex items-center gap-2"
+              className="resumeii-button flex items-center gap-2"
             >
               <Plus className="w-4 h-4" /> Add Application
             </button>

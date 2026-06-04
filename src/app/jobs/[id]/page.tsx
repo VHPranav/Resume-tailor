@@ -173,7 +173,7 @@ export default function JobDetailPage() {
             </div>
             <div className="flex items-center gap-3">
               {app.url && (
-                <a href={app.url} target="_blank" rel="noreferrer" className="kuubiik-button-secondary inline-flex items-center gap-2">
+                <a href={app.url} target="_blank" rel="noreferrer" className="resumeii-button-secondary inline-flex items-center gap-2">
                   View Posting <Clock className="w-4 h-4" />
                 </a>
               )}
@@ -277,7 +277,7 @@ export default function JobDetailPage() {
 
            <div className="space-y-10">
               {/* Linked Resume */}
-              <section className="kuubiik-card p-8 bg-slate-900 text-white border-none shadow-2xl shadow-slate-900/40 space-y-6">
+              <section className="resumeii-card p-8 bg-slate-900 text-white border-none shadow-2xl shadow-slate-900/40 space-y-6">
                  <div className="space-y-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resume Used</p>
                     <h3 className="text-xl font-black truncate">{app.resume?.fileName || "Unnamed Resume"}</h3>
@@ -294,7 +294,7 @@ export default function JobDetailPage() {
               </section>
 
               {/* Summary Stats */}
-              <section className="kuubiik-card p-8 space-y-6">
+              <section className="resumeii-card p-8 space-y-6">
                  <div className="space-y-4">
                     <div className="flex items-center justify-between">
                        <span className="text-xs font-bold text-slate-400">Match Score</span>
@@ -364,8 +364,8 @@ export default function JobDetailPage() {
                    </div>
                 </div>
                 <div className="flex gap-4 pt-4">
-                   <button type="button" onClick={() => setIsAddingInterview(false)} className="flex-1 kuubiik-button-secondary py-4">Cancel</button>
-                   <button type="submit" className="flex-1 kuubiik-button py-4">Add Round</button>
+                   <button type="button" onClick={() => setIsAddingInterview(false)} className="flex-1 resumeii-button-secondary py-4">Cancel</button>
+                   <button type="submit" className="flex-1 resumeii-button py-4">Add Round</button>
                 </div>
              </form>
           </div>

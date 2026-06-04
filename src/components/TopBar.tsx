@@ -30,7 +30,7 @@ export default function TopBar({
         <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors hidden sm:block">
           <Bell className="w-5 h-5" />
         </button>
-        <button className="kuubiik-button flex items-center gap-2 text-xs md:text-sm px-3 md:px-5 py-2">
+        <button className="resumeii-button flex items-center gap-2 text-xs md:text-sm px-3 md:px-5 py-2">
           <Plus className="w-4 h-4" />
           <span className="hidden xs:inline">Add new</span>
         </button>

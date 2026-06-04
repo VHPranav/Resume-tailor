@@ -7,12 +7,18 @@ if (typeof globalThis !== "undefined" && typeof (globalThis as any).DOMMatrix ==
   };
 }
 
-const pdf = require("pdf-parse");
+import { PDFParse } from "pdf-parse";
 
 export async function extractTextFromFile(buffer: Buffer, fileType: string): Promise<string> {
   if (fileType === "application/pdf") {
-    const data = await pdf(buffer);
-    return data.text;
+    try {
+      const parser = new PDFParse({ data: buffer });
+      const result = await parser.getText();
+      return result.text;
+    } catch (error: any) {
+      console.error("PDF Parse Internal Error:", error);
+      throw new Error("Failed to parse PDF file content");
+    }
   } 
   
   if (fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {

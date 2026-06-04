@@ -42,7 +42,7 @@ export default async function DashboardPage() {
       <div className="space-y-12">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Welcome Banner */}
-          <section className="flex-1 kuubiik-card p-6 md:p-10 bg-[#F8F9F5] border-none shadow-none relative overflow-hidden group">
+          <section className="flex-1 resumeii-card p-6 md:p-10 bg-[#F8F9F5] border-none shadow-none relative overflow-hidden group">
             <Sparkles className="w-64 h-64 text-emerald-500/5 absolute -bottom-10 -right-10 group-hover:scale-110 transition-transform duration-1000" />
             <div className="relative z-10 space-y-8">
               <div className="space-y-3">
@@ -54,7 +54,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <Link href="/upload" className="kuubiik-button px-8 py-3 h-auto text-sm">
+                <Link href="/upload" className="resumeii-button px-8 py-3 h-auto text-sm">
                    Tailor new resume
                 </Link>
               </div>
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
           </section>
 
           {/* Setup Widget */}
-          <section className="w-full lg:w-96 bg-[#FFFBEB] rounded-kuubiik p-8 relative overflow-hidden">
+          <section className="w-full lg:w-96 bg-[#FFFBEB] rounded-resumeii p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 blur-3xl rounded-full translate-x-10 -translate-y-10" />
             <div className="relative space-y-6">
               <div className="space-y-2">
@@ -110,7 +110,7 @@ export default async function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="kuubiik-card p-20 text-center space-y-6 bg-slate-50/50 border-dashed border-2 border-slate-200">
+            <div className="resumeii-card p-20 text-center space-y-6 bg-slate-50/50 border-dashed border-2 border-slate-200">
                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto shadow-sm">
                   <FileText className="w-10 h-10 text-slate-300" />
                </div>
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
                   <h3 className="text-xl font-bold text-slate-900 tracking-tight">No analyses yet</h3>
                   <p className="text-slate-500 font-medium max-w-xs mx-auto">Upload your resume and a job description to see the magic happen.</p>
                </div>
-               <Link href="/upload" className="kuubiik-button inline-flex">
+               <Link href="/upload" className="resumeii-button inline-flex">
                   Start first analysis
                </Link>
             </div>
@@ -142,7 +142,7 @@ function HistoryCard({ id, title, score, date }: any) {
   return (
     <Link 
       href={`/results?id=${id}`}
-      className="kuubiik-card p-8 flex flex-col justify-between group min-h-[340px] hover:shadow-2xl hover:shadow-slate-200/80 transition-all hover:-translate-y-1"
+      className="resumeii-card p-8 flex flex-col justify-between group min-h-[340px] hover:shadow-2xl hover:shadow-slate-200/80 transition-all hover:-translate-y-1"
     >
       <div className="space-y-8">
         <div className="flex items-center justify-between">
