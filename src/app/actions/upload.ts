@@ -7,6 +7,7 @@ import { join } from "path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { extractTextFromFile } from "@/lib/extractText";
+import { checkAndResetUserLimit } from "@/lib/limits";
 
 export async function uploadResume(formData: FormData) {
   const { userId } = await auth();
@@ -14,6 +15,12 @@ export async function uploadResume(formData: FormData) {
 
   if (!userId || !user) {
     throw new Error("Unauthorized");
+  }
+
+  // 1. Check if user is blocked by monthly AI tailoring limits
+  const limitCheck = await checkAndResetUserLimit(userId);
+  if (limitCheck && limitCheck.isBlocked) {
+    throw new Error("Usage limit reached. You can only analyze and rewrite your resume 2 times per calendar month.");
   }
 
   const file = formData.get("resume") as File;
@@ -39,13 +46,21 @@ export async function uploadResume(formData: FormData) {
     throw new Error("Failed to parse and extract text from your resume file. Please ensure it is a valid PDF or DOCX.");
   }
 
-  // Ensure user exists in database
+  // Ensure user exists in database with synced role
+  const adminEmail = process.env.ADMIN_EMAIL || "pranavvh778@gmail.com";
+  const email = user.emailAddresses[0].emailAddress;
+  const role = email.toLowerCase() === adminEmail.toLowerCase() ? "ADMIN" : "USER";
+
   const dbUser = await prisma.user.upsert({
     where: { clerkId: userId },
-    update: { email: user.emailAddresses[0].emailAddress },
+    update: { 
+      email,
+      role,
+    },
     create: {
       clerkId: userId,
-      email: user.emailAddresses[0].emailAddress,
+      email,
+      role,
     },
   });
 

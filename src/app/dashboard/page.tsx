@@ -15,6 +15,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { checkAndResetUserLimit } from "@/lib/limits";
 
 export default async function DashboardPage() {
   const { userId: clerkId } = await auth();
@@ -22,6 +23,12 @@ export default async function DashboardPage() {
   if (!clerkId) {
     return null;
   }
+
+  // Check usage and monthly limits
+  const limitCheck = await checkAndResetUserLimit(clerkId);
+  const isBlocked = limitCheck?.isBlocked || false;
+  const role = limitCheck?.role || "USER";
+  const aiUsageCount = limitCheck?.aiUsageCount || 0;
 
   // Fetch user and their analyses
   const user = await prisma.user.findUnique({
@@ -54,27 +61,56 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <Link href="/upload" className="resumeii-button px-8 py-3 h-auto text-sm">
-                   Tailor new resume
-                </Link>
+                {isBlocked && role !== "ADMIN" ? (
+                  <button 
+                    disabled 
+                    className="resumeii-button px-8 py-3 h-auto text-sm bg-slate-200 border-slate-200 text-slate-400 cursor-not-allowed hover:bg-slate-200 hover:text-slate-400"
+                    title="You have reached your free monthly limit"
+                  >
+                     Tailor new resume (Limit Reached)
+                  </button>
+                ) : (
+                  <Link href="/upload" className="resumeii-button px-8 py-3 h-auto text-sm">
+                     Tailor new resume
+                  </Link>
+                )}
               </div>
             </div>
           </section>
 
           {/* Setup Widget */}
-          <section className="w-full lg:w-96 bg-[#FFFBEB] rounded-resumeii p-8 relative overflow-hidden">
+          <section className="w-full lg:w-96 bg-[#FFFBEB] rounded-resumeii p-8 relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 blur-3xl rounded-full translate-x-10 -translate-y-10" />
             <div className="relative space-y-6">
               <div className="space-y-2">
-                <h3 className="text-lg font-bold text-slate-900">Your Progress</h3>
-                <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                   You've completed <span className="text-slate-900 font-bold">{analyses.length}</span> analyses so far. Keep going!
+                <h3 className="text-lg font-bold text-slate-900">AI Tailoring Limits</h3>
+                <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                   {role === "ADMIN" ? (
+                     <span>Admin Account: <strong className="text-emerald-700">Unlimited Access</strong></span>
+                   ) : (
+                     <span>You have used <strong>{aiUsageCount}</strong> of <strong>2</strong> free monthly attempts.</span>
+                   )}
                 </p>
               </div>
               
-              <div className="space-y-3">
-                <SetupItem color="bg-emerald-100" title="Profile 80% complete" />
-                <SetupItem color="bg-indigo-100" title="5 optimized resumes" />
+              {role !== "ADMIN" && (
+                <div className="space-y-2">
+                  <div className="w-full bg-amber-100/50 h-2.5 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-emerald-600 h-full transition-all duration-500" 
+                      style={{ width: `${Math.min((aiUsageCount / 2) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span>{aiUsageCount} Used</span>
+                    <span>2 Limit</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3 pt-2">
+                <SetupItem color="bg-emerald-100" title={`Analyses run: ${analyses.length}`} />
+                <SetupItem color="bg-indigo-100" title={role === "ADMIN" ? "Role: Admin" : "Role: Free User"} />
               </div>
             </div>
           </section>

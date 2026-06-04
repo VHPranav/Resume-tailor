@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  clerkId   String     @unique
-  createdAt DateTime   @default(now())
+  id              String           @id @default(cuid())
+  email           String           @unique
+  clerkId         String           @unique
+  createdAt       DateTime         @default(now())
   analyses        Analysis[]
   jobs            Job[]
   resumes         Resume[]
   jobApplications JobApplication[]
+  role            String           @default("USER")
+  aiUsageCount    Int              @default(0)
+  lastUsageReset  DateTime         @default(now())
 }
 
 model Resume {

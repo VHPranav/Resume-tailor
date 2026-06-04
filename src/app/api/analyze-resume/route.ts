@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { checkAndResetUserLimit } from "@/lib/limits";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const model = genAI.getGenerativeModel({ 
@@ -41,6 +42,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    const limitCheck = await checkAndResetUserLimit(clerkId);
     const user = await prisma.user.findUnique({
       where: { clerkId },
     });
@@ -76,7 +78,9 @@ export async function GET(request: Request) {
       missingSkills,
       resumeId: analysis.resumeId,
       jobTitle: analysis.job.title,
-      // If the job title was empty, we can guess it's from the first line of description usually, but we'll stick to model for now
+      creditsUsed: limitCheck?.aiUsageCount || 0,
+      creditsLimit: 2,
+      role: limitCheck?.role || "USER",
     });
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch analysis" }, { status: 500 });
@@ -91,6 +95,15 @@ export async function POST() {
   }
 
   try {
+    // Check monthly usage limits first
+    const limitCheck = await checkAndResetUserLimit(clerkId);
+    if (limitCheck && limitCheck.isBlocked) {
+      return NextResponse.json(
+        { error: "Usage limit reached. You can only analyze and rewrite your resume 2 times per calendar month." },
+        { status: 403 }
+      );
+    }
+
     // 1. Fetch latest data
     const user = await prisma.user.findUnique({
       where: { clerkId },
@@ -189,22 +202,40 @@ export async function POST() {
       }
     }
 
-    // 4. Save to Database
-    const analysis = await prisma.analysis.create({
-      data: {
-        userId: user.id,
-        resumeId: resume.id,
-        jobId: job.id,
-        matchScore: parseInt(data.matchScore) || 50,
-        rewrittenResume: data.rewrittenResume || "Content generation failed.",
-        suggestions: JSON.stringify({
-          suggestions: data.suggestions || [],
-          missingSkills: data.missingSkills || []
-        }),
-      },
-    });
+    // 4. Save to Database and atomically increment usage count
+    const [analysis] = await prisma.$transaction([
+      prisma.analysis.create({
+        data: {
+          userId: user.id,
+          resumeId: resume.id,
+          jobId: job.id,
+          matchScore: parseInt(data.matchScore) || 50,
+          rewrittenResume: data.rewrittenResume || "Content generation failed.",
+          suggestions: JSON.stringify({
+            suggestions: data.suggestions || [],
+            missingSkills: data.missingSkills || []
+          }),
+        },
+      }),
+      ...(limitCheck && limitCheck.role !== "ADMIN"
+        ? [
+            prisma.user.update({
+              where: { id: user.id },
+              data: { aiUsageCount: { increment: 1 } },
+            })
+          ]
+        : [])
+    ]);
 
-    return NextResponse.json({ ...data, id: analysis.id });
+    const nextCreditsUsed = limitCheck?.role === "ADMIN" ? 0 : (limitCheck?.aiUsageCount || 0) + 1;
+
+    return NextResponse.json({ 
+      ...data, 
+      id: analysis.id,
+      creditsUsed: nextCreditsUsed,
+      creditsLimit: 2,
+      role: limitCheck?.role || "USER"
+    });
 
   } catch (error: any) {
     console.error("AI Analysis Error:", error);

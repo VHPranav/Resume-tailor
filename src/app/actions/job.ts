@@ -3,12 +3,18 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { checkAndResetUserLimit } from "@/lib/limits";
 
 export async function saveJob(formData: FormData) {
   const { userId: clerkId } = await auth();
 
   if (!clerkId) {
     throw new Error("Unauthorized");
+  }
+
+  const limitCheck = await checkAndResetUserLimit(clerkId);
+  if (limitCheck && limitCheck.isBlocked) {
+    throw new Error("Usage limit reached. You can only analyze and rewrite your resume 2 times per calendar month.");
   }
 
   const title = formData.get("title") as string;

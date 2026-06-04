@@ -7,6 +7,7 @@ import Link from "next/link";
 import { updateAnalysis, deleteAnalysis } from "@/app/actions/analysis";
 import { useRouter, useSearchParams } from "next/navigation";
 import AddJobModal from "@/components/AddJobModal";
+import LimitReachedPopup from "@/components/LimitReachedPopup";
 
 interface AnalysisResult {
   id: string;
@@ -17,6 +18,9 @@ interface AnalysisResult {
   resumeId?: string;
   jobTitle?: string;
   company?: string;
+  creditsUsed?: number;
+  creditsLimit?: number;
+  role?: string;
 }
 
 export default function ResultsPage() {
@@ -48,6 +52,7 @@ function ResultsContent() {
   const [error, setError] = useState<string | null>(null);
   const [isTrackerModalOpen, setIsTrackerModalOpen] = useState(false);
   const [resumes, setResumes] = useState<any[]>([]);
+  const [showLimitPopup, setShowLimitPopup] = useState(false);
 
   const handleDelete = async () => {
     if (!data?.id) return;
@@ -80,6 +85,10 @@ function ResultsContent() {
         const result = await response.json();
         setData(result);
         setEditedResume(result.rewrittenResume);
+
+        if (method === "POST" && result.role !== "ADMIN" && result.creditsUsed >= 2) {
+          setShowLimitPopup(true);
+        }
 
         // Fetch resumes for the tracker modal
         const resumesRes = await fetch("/api/resumes");
@@ -377,6 +386,9 @@ function ResultsContent() {
           analysisId: data?.id,
         }}
       />
+    )}
+    {showLimitPopup && (
+      <LimitReachedPopup onClose={() => setShowLimitPopup(false)} />
     )}
     </>
   );
