@@ -1,74 +1,217 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle } from "docx";
 import jsPDF from "jspdf";
 
 /**
+ * Detects if a line is a section header in standard resume formats.
+ */
+function isSectionHeader(line: string): { isHeader: boolean; level: number; cleanText: string } {
+  const trimmed = line.trim();
+  if (trimmed.startsWith("# ")) {
+    return { isHeader: true, level: 1, cleanText: trimmed.replace("# ", "") };
+  }
+  if (trimmed.startsWith("## ")) {
+    return { isHeader: true, level: 2, cleanText: trimmed.replace("## ", "") };
+  }
+  if (trimmed.startsWith("### ")) {
+    return { isHeader: true, level: 3, cleanText: trimmed.replace("### ", "") };
+  }
+
+  // Detect bold section headers like **EXPERIENCE** or **TECHNICAL SKILLS**
+  const isBoldHeader = trimmed.startsWith("**") && trimmed.endsWith("**");
+  const cleanText = isBoldHeader ? trimmed.slice(2, -2).trim() : trimmed;
+  
+  const sectionKeywords = [
+    "EXPERIENCE", "SUMMARY", "PROJECTS", "EDUCATION", "SKILLS",
+    "BUILDS", "CONTACT", "AWARDS", "STRENGTHS", "INTERESTS",
+    "WORK", "EMPLOYMENT", "CERTIFICATIONS", "LANGUAGES", "ACHIEVEMENTS"
+  ];
+  
+  const upperClean = cleanText.toUpperCase();
+  const matchesKeyword = sectionKeywords.some(keyword => upperClean.includes(keyword));
+  
+  if (cleanText.length > 0 && cleanText.length < 35 && matchesKeyword) {
+    return { isHeader: true, level: 2, cleanText };
+  }
+
+  return { isHeader: false, level: 0, cleanText: trimmed };
+}
+
+/**
  * Parses simple markdown and generates a DOCX Blob.
- * Handles headings, bold text, and bullet points for a clean, ATS-friendly format.
+ * Handles headings, bold/italic text, and bullet points for a clean, premium, ATS-friendly format.
  */
 export async function generateDocx(markdownText: string): Promise<Blob> {
   const lines = markdownText.split("\n");
   const paragraphs: Paragraph[] = [];
 
+  let isFirstNonEmpty = true;
+  let isSecondNonEmpty = false;
+  let isThirdNonEmpty = false;
+
+  function parseLineToTextRuns(text: string, font: string = "Calibri", size: number = 21): TextRun[] {
+    const parts = text.split(/(\*\*\*.*?\*\*\*|\*\*.*?\*\*|\*.*?\*)/g);
+    return parts
+      .filter(p => p.length > 0)
+      .map(part => {
+        let cleanText = part;
+        let bold = false;
+        let italics = false;
+        if (part.startsWith("***") && part.endsWith("***")) {
+          cleanText = part.slice(3, -3);
+          bold = true;
+          italics = true;
+        } else if (part.startsWith("**") && part.endsWith("**")) {
+          cleanText = part.slice(2, -2);
+          bold = true;
+        } else if (part.startsWith("*") && part.endsWith("*")) {
+          cleanText = part.slice(1, -1);
+          italics = true;
+        }
+        return new TextRun({
+          text: cleanText,
+          bold,
+          italics,
+          font,
+          size,
+        });
+      });
+  }
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) {
-      paragraphs.push(new Paragraph({ text: "" })); // Empty line for spacing
       continue;
     }
 
-    // Headings
-    if (line.startsWith("# ")) {
-      paragraphs.push(new Paragraph({
-        text: line.replace("# ", ""),
-        heading: HeadingLevel.HEADING_1,
-        alignment: AlignmentType.CENTER,
-      }));
-    } else if (line.startsWith("## ")) {
-      paragraphs.push(new Paragraph({
-        text: line.replace("## ", ""),
-        heading: HeadingLevel.HEADING_2,
-        spacing: { before: 200 },
-      }));
-    } else if (line.startsWith("### ")) {
-      paragraphs.push(new Paragraph({
-        text: line.replace("### ", ""),
-        heading: HeadingLevel.HEADING_3,
-        spacing: { before: 100 },
-      }));
-    } else {
-      // Bullet points
-      const isBullet = line.startsWith("- ") || line.startsWith("* ");
-      const cleanLine = isBullet ? line.substring(2) : line;
+    const headerInfo = isSectionHeader(line);
 
-      // Bold parsing: splits "**text**" into segments
-      const parts = cleanLine.split(/(\*\*.*?\*\*)/g);
-      const textRuns = parts.filter(p => p).map(part => {
-        if (part.startsWith("**") && part.endsWith("**")) {
-          return new TextRun({
-            text: part.replace(/\*\*/g, ""),
-            bold: true,
-            font: "Arial",
-            size: 22, // 11pt
-          });
-        }
-        return new TextRun({
-          text: part,
-          font: "Arial",
-          size: 22,
-        });
-      });
-
-      paragraphs.push(new Paragraph({
-        children: textRuns,
-        bullet: isBullet ? { level: 0 } : undefined,
-        spacing: { after: 120 },
-      }));
+    // Cancel subtitle/contact flags if a section header is found
+    if (headerInfo.isHeader) {
+      isFirstNonEmpty = false;
+      isSecondNonEmpty = false;
+      isThirdNonEmpty = false;
     }
+
+    if (isFirstNonEmpty) {
+      isFirstNonEmpty = false;
+      isSecondNonEmpty = true;
+      const cleanName = line.replace(/^\*\*|\*\*$/g, "").trim();
+      
+      paragraphs.push(new Paragraph({
+        children: [
+          new TextRun({
+            text: cleanName,
+            bold: true,
+            font: "Calibri",
+            size: 38, // 19pt
+          })
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 200, after: 120 }
+      }));
+      continue;
+    }
+
+    if (isSecondNonEmpty) {
+      isSecondNonEmpty = false;
+      isThirdNonEmpty = true;
+      const cleanSubtitle = line.replace(/^\*\*|\*\*$/g, "").trim();
+      
+      paragraphs.push(new Paragraph({
+        children: [
+          new TextRun({
+            text: cleanSubtitle,
+            font: "Calibri",
+            size: 19, // 9.5pt
+          })
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 120 }
+      }));
+      continue;
+    }
+
+    if (isThirdNonEmpty) {
+      isThirdNonEmpty = false;
+      const cleanContact = line.replace(/^\*\*|\*\*$/g, "").trim();
+      
+      paragraphs.push(new Paragraph({
+        children: [
+          new TextRun({
+            text: cleanContact,
+            font: "Calibri",
+            size: 18, // 9pt
+          })
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 240 } // Larger gap after header contact block
+      }));
+      continue;
+    }
+
+    if (headerInfo.isHeader) {
+      if (headerInfo.level === 2) {
+        paragraphs.push(new Paragraph({
+          children: [
+            new TextRun({
+              text: headerInfo.cleanText.toUpperCase(),
+              bold: true,
+              font: "Calibri",
+              size: 23, // 11.5pt
+            })
+          ],
+          heading: HeadingLevel.HEADING_2,
+          border: {
+            bottom: {
+              color: "CCCCCC",
+              space: 4,
+              style: BorderStyle.SINGLE,
+              size: 6, // 1/8 pt
+            }
+          },
+          spacing: { before: 240, after: 120 }
+        }));
+      } else if (headerInfo.level === 3) {
+        paragraphs.push(new Paragraph({
+          children: [
+            new TextRun({
+              text: headerInfo.cleanText,
+              bold: true,
+              font: "Calibri",
+              size: 20, // 10pt
+            })
+          ],
+          heading: HeadingLevel.HEADING_3,
+          spacing: { before: 140, after: 80 }
+        }));
+      }
+      continue;
+    }
+
+    // Normal paragraph or bullet point
+    const isBullet = line.startsWith("- ") || line.startsWith("* ");
+    const cleanLine = isBullet ? line.substring(2).trim() : line;
+    const textRuns = parseLineToTextRuns(cleanLine, "Calibri", 21); // 10.5pt
+
+    paragraphs.push(new Paragraph({
+      children: textRuns,
+      bullet: isBullet ? { level: 0 } : undefined,
+      spacing: { after: 80 }
+    }));
   }
 
   const doc = new Document({
     sections: [{
-      properties: {},
+      properties: {
+        page: {
+          margin: {
+            top: 1080, // 0.75 in
+            bottom: 1080,
+            left: 1080,
+            right: 1080,
+          }
+        }
+      },
       children: paragraphs,
     }],
   });
@@ -77,8 +220,8 @@ export async function generateDocx(markdownText: string): Promise<Blob> {
 }
 
 /**
- * Generates a clean, ATS-friendly PDF from markdown text.
- * Uses a simple text layout to ensure readability by parsers.
+ * Generates a clean, beautifully typeset, ATS-friendly PDF from markdown text.
+ * Maintains full support for inline styling (bold, italic, and bold-italic).
  */
 export function generatePdf(markdownText: string): Blob {
   const doc = new jsPDF({
@@ -87,79 +230,180 @@ export function generatePdf(markdownText: string): Blob {
     format: "letter"
   });
 
-  doc.setFont("helvetica");
-  
-  const margin = 50;
+  const margin = 40;
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
   const maxLineWidth = pageWidth - margin * 2;
   
   let y = margin;
   const lines = markdownText.split("\n");
+  
+  let isFirstNonEmpty = true;
+  let isSecondNonEmpty = false;
+  let isThirdNonEmpty = false;
+
+  function parseLineToTokens(text: string) {
+    const parts = text.split(/(\*\*\*.*?\*\*\*|\*\*.*?\*\*|\*.*?\*)/g);
+    return parts
+      .filter(p => p.length > 0)
+      .map(part => {
+        if (part.startsWith("***") && part.endsWith("***")) {
+          return { text: part.slice(3, -3), bold: true, italic: true };
+        } else if (part.startsWith("**") && part.endsWith("**")) {
+          return { text: part.slice(2, -2), bold: true, italic: false };
+        } else if (part.startsWith("*") && part.endsWith("*")) {
+          return { text: part.slice(1, -1), bold: false, italic: true };
+        }
+        return { text: part, bold: false, italic: false };
+      });
+  }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    
-    // Page break logic
-    if (y > doc.internal.pageSize.getHeight() - margin) {
-      doc.addPage();
-      y = margin;
-    }
-
     if (!line) {
-      y += 12; // Small gap for empty lines
       continue;
     }
 
-    // Basic Markdown handling for PDF
-    let textToPrint = line;
-    let fontSize = 11;
-    let isBold = false;
-    let xOffset = margin;
+    const headerInfo = isSectionHeader(line);
 
-    if (line.startsWith("# ")) {
-      textToPrint = line.replace("# ", "");
-      fontSize = 20;
-      isBold = true;
-      // Center H1
-      const textWidth = doc.getTextWidth(textToPrint);
-      xOffset = (pageWidth - textWidth) / 2;
-      y += 10;
-    } else if (line.startsWith("## ")) {
-      textToPrint = line.replace("## ", "");
-      fontSize = 16;
-      isBold = true;
-      y += 10;
-    } else if (line.startsWith("### ")) {
-      textToPrint = line.replace("### ", "");
-      fontSize = 14;
-      isBold = true;
-      y += 5;
-    } else if (line.startsWith("- ") || line.startsWith("* ")) {
-      textToPrint = "• " + line.substring(2);
-      xOffset = margin + 10; // Indent bullets
+    // Cancel subtitle/contact flags if a section header is found
+    if (headerInfo.isHeader) {
+      isFirstNonEmpty = false;
+      isSecondNonEmpty = false;
+      isThirdNonEmpty = false;
     }
 
-    // Crude bold removal for standard lines
-    if (textToPrint.includes("**")) {
-      textToPrint = textToPrint.replace(/\*\*/g, ""); // Remove bold markers for simple PDF
+    if (isFirstNonEmpty) {
+      isFirstNonEmpty = false;
+      isSecondNonEmpty = true;
+      const cleanName = line.replace(/^\*\*|\*\*$/g, "").trim();
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      const textWidth = doc.getTextWidth(cleanName);
+      doc.text(cleanName, (pageWidth - textWidth) / 2, y);
+      y += 20;
+      continue;
     }
 
-    doc.setFont("helvetica", isBold ? "bold" : "normal");
-    doc.setFontSize(fontSize);
+    if (isSecondNonEmpty) {
+      isSecondNonEmpty = false;
+      isThirdNonEmpty = true;
+      const cleanSubtitle = line.replace(/^\*\*|\*\*$/g, "").trim();
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      const textWidth = doc.getTextWidth(cleanSubtitle);
+      doc.text(cleanSubtitle, (pageWidth - textWidth) / 2, y);
+      y += 14;
+      continue;
+    }
 
-    // Split text if it exceeds page width
-    const splitText = doc.splitTextToSize(textToPrint, maxLineWidth - (xOffset - margin));
-    
-    for (let j = 0; j < splitText.length; j++) {
-      if (y > doc.internal.pageSize.getHeight() - margin) {
+    if (isThirdNonEmpty) {
+      isThirdNonEmpty = false;
+      const cleanContact = line.replace(/^\*\*|\*\*$/g, "").trim();
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      const textWidth = doc.getTextWidth(cleanContact);
+      doc.text(cleanContact, (pageWidth - textWidth) / 2, y);
+      y += 24;
+      continue;
+    }
+
+    if (headerInfo.isHeader) {
+      if (y > pageHeight - margin - 60) {
         doc.addPage();
         y = margin;
       }
-      doc.text(splitText[j], xOffset, y);
-      y += fontSize * 1.2;
+
+      if (headerInfo.level === 2) {
+        y += 10;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        
+        const sectionTitle = headerInfo.cleanText.toUpperCase();
+        doc.text(sectionTitle, margin, y);
+        
+        y += 4;
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 12;
+      } else if (headerInfo.level === 3) {
+        y += 6;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text(headerInfo.cleanText, margin, y);
+        y += 12;
+      }
+      continue;
     }
+
+    // Bullet points
+    const isBullet = line.startsWith("- ") || line.startsWith("* ");
+    const cleanLine = isBullet ? line.substring(2).trim() : line;
+    const startX = isBullet ? margin + 12 : margin;
+    const bulletChar = "•";
     
-    y += 5; // Paragraph spacing
+    if (isBullet) {
+      if (y > pageHeight - margin - 15) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text(bulletChar, margin + 2, y);
+    }
+
+    // Wrap inline styled chunks
+    const tokens = parseLineToTokens(cleanLine);
+    const words: { text: string; bold: boolean; italic: boolean; space: boolean }[] = [];
+    
+    for (const token of tokens) {
+      const splitWords = token.text.split(" ");
+      for (let k = 0; k < splitWords.length; k++) {
+        words.push({
+          text: splitWords[k],
+          bold: token.bold,
+          italic: token.italic,
+          space: k < splitWords.length - 1 || token.text.endsWith(" ")
+        });
+      }
+    }
+
+    let currentX = startX;
+    const rightBoundary = pageWidth - margin;
+    const fontSize = 9.5;
+    doc.setFontSize(fontSize);
+
+    for (let j = 0; j < words.length; j++) {
+      const word = words[j];
+      let style = "normal";
+      if (word.bold && word.italic) style = "bolditalic";
+      else if (word.bold) style = "bold";
+      else if (word.italic) style = "italic";
+
+      doc.setFont("helvetica", style);
+
+      const wordText = word.text + (word.space ? " " : "");
+      const wordWidth = doc.getTextWidth(wordText);
+
+      if (currentX + wordWidth > rightBoundary) {
+        y += fontSize * 1.25;
+        currentX = startX;
+
+        if (y > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+      }
+
+      doc.text(wordText, currentX, y);
+      currentX += wordWidth;
+    }
+
+    y += fontSize * 1.25 + 3; // Line height + paragraph spacing
   }
 
   return doc.output("blob");

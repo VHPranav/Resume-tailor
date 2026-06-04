@@ -1,4 +1,5 @@
 import mammoth from "mammoth";
+import path from "path";
 
 // Polyfill for DOMMatrix in Node/Next.js environments where it is missing
 if (typeof globalThis !== "undefined" && typeof (globalThis as any).DOMMatrix === "undefined") {
@@ -8,6 +9,11 @@ if (typeof globalThis !== "undefined" && typeof (globalThis as any).DOMMatrix ==
 }
 
 import { PDFParse } from "pdf-parse";
+
+// Set worker path to the absolute path in node_modules to avoid bundler loading issues in SSR/Next.js
+const workerPath = path.join(process.cwd(), "node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs");
+PDFParse.setWorker(workerPath);
+
 
 export async function extractTextFromFile(buffer: Buffer, fileType: string): Promise<string> {
   if (fileType === "application/pdf") {

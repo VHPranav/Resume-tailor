@@ -36,7 +36,7 @@ export async function uploadResume(formData: FormData) {
     content = await extractTextFromFile(buffer, file.type);
   } catch (err) {
     console.error("Extraction error:", err);
-    // Continue even if extraction fails, but log it
+    throw new Error("Failed to parse and extract text from your resume file. Please ensure it is a valid PDF or DOCX.");
   }
 
   // Ensure user exists in database

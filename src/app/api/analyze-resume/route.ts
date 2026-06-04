@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -8,6 +8,22 @@ const model = genAI.getGenerativeModel({
   model: "gemini-2.5-flash",
   generationConfig: {
     responseMimeType: "application/json",
+    responseSchema: {
+      type: SchemaType.OBJECT,
+      properties: {
+        matchScore: { type: SchemaType.INTEGER },
+        missingSkills: {
+          type: SchemaType.ARRAY,
+          items: { type: SchemaType.STRING }
+        },
+        suggestions: {
+          type: SchemaType.ARRAY,
+          items: { type: SchemaType.STRING }
+        },
+        rewrittenResume: { type: SchemaType.STRING }
+      },
+      required: ["matchScore", "missingSkills", "suggestions", "rewrittenResume"]
+    }
   }
 });
 
@@ -109,6 +125,16 @@ export async function POST() {
       - Highlight relevant experience
       - Keep bullet points concise
 
+      Formatting Rules for rewrittenResume (MANDATORY):
+      1. Structure the resume with clear sections: Name, Tagline/Role, Contact Info, Professional Summary, Work Experience, Projects, Technical Skills, and Education.
+      2. The very first line MUST be the candidate's name.
+      3. The second line MUST be the target role or professional tagline.
+      4. The third line MUST be the contact details (Phone | Email | LinkedIn | Portfolio).
+      5. Use '## ' headings in UPPERCASE for main section titles (e.g., ## PROFESSIONAL SUMMARY, ## EXPERIENCE, ## PROJECTS, ## TECHNICAL SKILLS, ## EDUCATION).
+      6. Use '### ' headings for job titles/companies and project titles (e.g., ### UI/UX Designer & Frontend Engineer | ClockHash Technologies).
+      7. Use clean, single bullet points starting with '- ' or '* ' for experience details. NEVER merge multiple bullet points or sentences into a single dense paragraph.
+      8. Insert exactly one blank line (\n\n) between all sections, jobs, projects, and headings to maintain a clean, well-spaced document layout.
+
       Resume:
       ${resume.content}
       
@@ -137,8 +163,30 @@ export async function POST() {
     try {
       data = JSON.parse(text.trim());
     } catch (parseError) {
-      console.error("Failed to parse Gemini output:", text);
-      throw new Error("AI returned malformed JSON");
+      console.warn("Standard JSON parse failed, trying to sanitize text...", parseError);
+      try {
+        // Try cleaning up common LLM JSON syntax mistakes:
+        // 1. Triple-quotes or double-quotes at the end of a string block: e.g. """} -> "} or ""\} -> "}
+        let sanitized = text.trim();
+        if (sanitized.endsWith('"""}')) {
+          sanitized = sanitized.slice(0, -4) + '"}';
+        } else if (sanitized.endsWith('""}')) {
+          sanitized = sanitized.slice(0, -3) + '"}';
+        } else if (sanitized.endsWith('\\"""}')) {
+          sanitized = sanitized.slice(0, -5) + '"}';
+        } else if (sanitized.endsWith('\\""}')) {
+          sanitized = sanitized.slice(0, -4) + '"}';
+        }
+        
+        // 2. Trailing commas before closing brace/bracket
+        sanitized = sanitized.replace(/,\s*([\]}])/g, '$1');
+        
+        data = JSON.parse(sanitized);
+        console.log("Successfully parsed sanitized JSON!");
+      } catch (secondError) {
+        console.error("Failed to parse sanitized Gemini output:", text);
+        throw new Error("AI returned malformed JSON");
+      }
     }
 
     // 4. Save to Database
